@@ -13,6 +13,23 @@ export class WorkoutTimer {
     this.onComplete = null;
   }
 
+  init() {
+    const closeBtn = document.getElementById('timer-close-btn');
+    const playPauseBtn = document.getElementById('timer-play-pause-btn');
+    const sub15Btn = document.getElementById('timer-sub-15-btn');
+    const add15Btn = document.getElementById('timer-add-15-btn');
+    const add30Btn = document.getElementById('timer-add-30-btn');
+
+    if (closeBtn) closeBtn.addEventListener('click', () => this.stop());
+    if (playPauseBtn) playPauseBtn.addEventListener('click', () => {
+      if (this.isRunning) this.pause();
+      else this.resume();
+    });
+    if (sub15Btn) sub15Btn.addEventListener('click', () => this.addTime(-15));
+    if (add15Btn) add15Btn.addEventListener('click', () => this.addTime(15));
+    if (add30Btn) add30Btn.addEventListener('click', () => this.addTime(30));
+  }
+
   getAudioContext() {
     if (!this.audioCtx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;

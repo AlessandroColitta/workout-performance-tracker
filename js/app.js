@@ -11,25 +11,37 @@ import { timer } from './timer.js';
  */
 class App {
   static init() {
-    // Inizializza il timer di recupero
-    timer.init();
+    try {
+      // Inizializza il timer di recupero
+      if (timer && typeof timer.init === 'function') {
+        timer.init();
+      }
 
-    // Inizializza sincronizzazione Cloud se precedentemente configurata
-    cloudSync.init();
+      // Inizializza sincronizzazione Cloud se precedentemente configurata
+      if (cloudSync && typeof cloudSync.init === 'function') {
+        cloudSync.init();
+      }
 
-    // Sottoscrizione alle modifiche dello stato
-    state.subscribe((currentState) => {
-      this.render(currentState);
-    });
+      // Sottoscrizione alle modifiche dello stato
+      state.subscribe((currentState) => {
+        this.render(currentState);
+      });
 
-    // Setup listener di navigazione
-    this.setupNavigation();
+      // Setup listener di navigazione
+      this.setupNavigation();
 
-    // Render iniziale
-    this.render(state.state);
+      // Render iniziale
+      this.render(state.state);
 
-    // Registrazione Service Worker per PWA offline
-    this.registerServiceWorker();
+      // Registrazione Service Worker per PWA offline
+      this.registerServiceWorker();
+    } catch (err) {
+      console.error('Errore critico durante App.init():', err);
+      // Fallback: renderizza comunque la landing view se possibile
+      try {
+        LandingView.render();
+      } catch (e) {}
+    }
   }
 
   static render(currentState) {
@@ -147,7 +159,9 @@ class App {
   }
 }
 
-// Avvio applicazione al caricamento del DOM
-document.addEventListener('DOMContentLoaded', () => {
+// Avvio applicazione immediato o al caricamento del DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => App.init());
+} else {
   App.init();
-});
+}

@@ -1,5 +1,15 @@
 import { state } from './state.js';
 
+export const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBx0vqA1ZlL_AYpz_43LyXXIsNPNfD-33A",
+  authDomain: "gym-mesocycle.firebaseapp.com",
+  projectId: "gym-mesocycle",
+  storageBucket: "gym-mesocycle.firebasestorage.app",
+  messagingSenderId: "473853059782",
+  appId: "1:473853059782:web:70d070aba6d6a73eff6dc7",
+  measurementId: "G-HWBNEKZLKE"
+};
+
 /**
  * Gestore Sincronizzazione Cloud Real-Time Automatica
  * Supporta Google Firebase Firestore (100% gratuito) e Google Apps Script / Google Drive.
@@ -56,10 +66,15 @@ export class CloudSync {
   }
 
   /**
-   * Inizializza la sincronizzazione se una configurazione è salvata.
+   * Inizializza la sincronizzazione con la configurazione salvata o quella predefinita di Firebase.
    */
   async init() {
-    const config = this.getSavedConfig();
+    let config = this.getSavedConfig();
+    if (!config && DEFAULT_FIREBASE_CONFIG.projectId) {
+      config = { type: 'firebase', firebaseConfig: DEFAULT_FIREBASE_CONFIG };
+      this.saveConfig(config);
+    }
+
     if (config && config.type === 'firebase' && config.firebaseConfig) {
       await this.connectFirebase(config.firebaseConfig);
     } else if (config && config.type === 'gas' && config.gasUrl) {

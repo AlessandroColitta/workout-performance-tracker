@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Workout Performance & Volume Tracker</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Tracker del volume per gruppo muscolare e monitoraggio degli esercizi fondamentali con grafici temporali.">
+  <link rel="manifest" href="./manifest.json">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            heading: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+              950: '#022c22'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js via CDN per Grafici Temporali -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-zinc-950 pb-28 sm:pb-20">
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-zinc-950/85 backdrop-blur-md border-b border-zinc-800/80 px-4 sm:px-6 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <!-- Logo & App Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-zinc-950 font-black text-lg shadow-lg shadow-emerald-500/20">
+          ⚡
+        </div>
+        <div>
+          <h1 class="font-heading font-black text-base sm:text-lg tracking-tight bg-gradient-to-r from-zinc-100 via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+            Workout Performance
+          </h1>
+          <div class="flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Volume & Fondamentali</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cloud Status Badge & User Profile Button -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Badge Stato Cloud Real-Time -->
+        <div id="cloud-status-badge" class="px-2.5 py-1 rounded-lg text-[11px] bg-zinc-800/80 border border-zinc-700/60 flex items-center gap-1.5 cursor-pointer" title="Stato sincronizzazione Cloud">
+          <span class="inline-block w-2 h-2 rounded-full bg-zinc-500"></span>
+          <span class="text-zinc-400 font-medium">Locale</span>
+        </div>
+
+        <!-- Profilo Attivo / Esci -->
+        <button id="header-user-btn" class="hidden flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 rounded-xl py-1.5 px-3 transition-all cursor-pointer" title="Clicca per cambiare profilo atleta">
+          <div id="header-avatar" class="w-6 h-6 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 text-zinc-950 font-bold text-xs flex items-center justify-center">
+            ?
+          </div>
+          <span id="header-user-name" class="text-xs font-bold text-zinc-200 max-w-[120px] truncate">
+            Atleta
+          </span>
+          <span class="text-[10px] text-zinc-400 underline ml-1">Esci</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs (visibili solo quando un profilo è attivo) -->
+    <div id="main-nav-bar" class="hidden max-w-6xl mx-auto mt-2 pt-2 border-t border-zinc-800/40">
+      <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none text-xs font-bold">
+        <button class="nav-tab-btn px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 cursor-pointer" data-tab="volume">
+          <span>📊</span>
+          <span>Volume Sessione</span>
+        </button>
+        <button class="nav-tab-btn px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 border border-transparent cursor-pointer" data-tab="fundamentals">
+          <span>🎯</span>
+          <span>Esercizi Fondamentali</span>
+        </button>
+        <button class="nav-tab-btn px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 border border-transparent cursor-pointer" data-tab="settings">
+          <span>⚙️</span>
+          <span>Dati & Cloud</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6">
+    <!-- Schermata Iniziale: Selezione o Creazione Profilo -->
+    <div id="landing-view"></div>
+
+    <!-- Schermata 1: Volume Totale per Gruppo Muscolare della Sessione -->
+    <div id="volume-view" class="hidden"></div>
+
+    <!-- Schermata 2: Peso e Volume per Esercizi Fondamentali -->
+    <div id="fundamentals-view" class="hidden"></div>
+
+    <!-- Schermata Impostazioni & Cloud Sync -->
+    <div id="settings-view" class="hidden"></div>
+  </main>
+
+  <!-- Floating Rest Timer Widget -->
+  <div id="floating-timer" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 hidden bg-zinc-900/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl p-4 shadow-2xl max-w-xs w-full transition-all">
+    <div class="space-y-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <span id="timer-exercise-label" class="text-xs font-bold text-emerald-400 truncate">Recupero</span>
+        <button id="timer-close-btn" class="text-zinc-400 hover:text-zinc-200 p-1 rounded-lg hover:bg-zinc-800">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Time Display -->
+      <div class="flex items-center justify-between">
+        <div id="timer-countdown-display" class="text-3xl font-black font-heading text-zinc-100 tracking-tight">
+          01:30
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="timer-sub-15-btn" class="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300">-15s</button>
+          <button id="timer-play-pause-btn" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-200"></button>
+          <button id="timer-add-15-btn" class="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300">+15s</button>
+          <button id="timer-add-30-btn" class="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300">+30s</button>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+        <div id="timer-progress-fill" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Entry Point -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

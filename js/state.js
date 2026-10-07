@@ -352,6 +352,36 @@ class StateManager {
     this.save();
   }
 
+  /**
+   * Restituisce tutti i nomi di esercizi unici già registrati dall'utente per uno specifico gruppo muscolare.
+   * Include gli esercizi delle sessioni passate e quelli fondamentali, utile per l'autocompletamento intelligente.
+   */
+  getExerciseNamesForMuscleGroup(muscleGroupName) {
+    const user = this.getCurrentUser();
+    if (!user) return [];
+
+    const namesSet = new Set();
+    const cleanGroup = (muscleGroupName || '').toLowerCase().trim();
+
+    // 1. Cerca nei fondamentali definiti
+    (user.fundamentalExercises || []).forEach(f => {
+      if (!cleanGroup || (f.muscleGroup || '').toLowerCase().trim() === cleanGroup) {
+        if (f.name) namesSet.add(f.name.trim());
+      }
+    });
+
+    // 2. Cerca in tutte le sessioni registrate
+    (user.sessions || []).forEach(sess => {
+      (sess.exercises || []).forEach(ex => {
+        if (!cleanGroup || (ex.muscleGroup || '').toLowerCase().trim() === cleanGroup) {
+          if (ex.name) namesSet.add(ex.name.trim());
+        }
+      });
+    });
+
+    return Array.from(namesSet).sort((a, b) => a.localeCompare(b, 'it', { sensitivity: 'base' }));
+  }
+
   /* ========================================================
      GESTIONE ESERCIZI FONDAMENTALI
      ======================================================== */
@@ -531,6 +561,26 @@ class StateManager {
     });
 
     return result;
+  }
+
+  /**
+   * Restituisce la cronologia temporale ordinata dei volumi per ciascun gruppo muscolare attraverso tutte le sessioni:
+   */
+  getMuscleGroupTimeline() {
+    const user = this.getCurrentUser();
+    if (!user || !Array.isArray(user.sessions) || user.sessions.length === 0) return [];
+
+    const sorted = [...user.sessions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return sorted.map(sess => {
+      const volMap = this.getSessionMuscleVolumes(sess);
+      return {
+        sessionId: sess.id,
+        date: sess.date,
+        title: sess.title,
+        volumes: volMap
+      };
+    });
   }
 
   /* ========================================================

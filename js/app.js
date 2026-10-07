@@ -132,14 +132,11 @@ class App {
       });
     }
 
-    // Click sul badge stato cloud
+    // Click sul badge stato cloud -> Apre sempre il modale diagnostico interattivo
     const cloudBadge = document.getElementById('cloud-status-badge');
     if (cloudBadge) {
       cloudBadge.addEventListener('click', () => {
-        const user = state.getCurrentUser();
-        if (user) {
-          state.setActiveTab('settings');
-        }
+        cloudSync.showDiagnosticModal();
       });
     }
   }

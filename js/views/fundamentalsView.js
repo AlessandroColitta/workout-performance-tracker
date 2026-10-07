@@ -377,44 +377,101 @@ export class FundamentalsView {
 
     const isVolume = this.metricMode === 'volume';
 
-    // Labels asse temporale con date reali
-    const labels = history.map(h => {
-      try {
-        const d = new Date(h.date);
-        return `${d.getDate()}/${d.getMonth() + 1}`;
-      } catch (e) {
-        return h.date;
-      }
+    // Ordina in senso cronologico ascendente
+    const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Base temporale in giorni: la prima sessione è il Giorno 0
+    const minDateObj = new Date(sorted[0].date);
+    minDateObj.setHours(0, 0, 0, 0);
+    const minTime = minDateObj.getTime();
+
+    const maxDateObj = new Date(sorted[sorted.length - 1].date);
+    maxDateObj.setHours(0, 0, 0, 0);
+    const totalSpanDays = Math.max(1, Math.round((maxDateObj.getTime() - minTime) / 86400000));
+
+    // Punti reali mappati su scala lineare continua (1 unità = 1 giorno solare)
+    const dataPoints = sorted.map(h => {
+      const d = new Date(h.date);
+      d.setHours(0, 0, 0, 0);
+      const dayOffset = Math.round((d.getTime() - minTime) / 86400000);
+      return {
+        x: dayOffset,
+        y: isVolume ? h.totalVolume : h.weight,
+        rawItem: h
+      };
     });
 
-    const dataPoints = history.map(h => isVolume ? h.totalVolume : h.weight);
+    const datasets = [
+      {
+        label: isVolume ? 'Volume Totale Effettivo (kg)' : 'Carico Eseguito (kg)',
+        data: dataPoints,
+        borderColor: isVolume ? '#14b8a6' : '#10b981',
+        backgroundColor: isVolume ? 'rgba(20, 184, 166, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+        borderWidth: 3,
+        pointBackgroundColor: isVolume ? '#14b8a6' : '#10b981',
+        pointBorderColor: '#ffffff',
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0.2,
+        fill: true,
+        order: 2
+      }
+    ];
+
+    // Predizione sovraccarico progressivo per la prossima seduta (se abbiamo almeno 2 sessioni)
+    let maxChartDays = totalSpanDays;
+    if (sorted.length >= 2) {
+      const lastPoint = dataPoints[dataPoints.length - 1];
+      const avgInterval = Math.max(2, Math.round(totalSpanDays / (sorted.length - 1)));
+      const nextDayOffset = lastPoint.x + avgInterval;
+      maxChartDays = nextDayOffset;
+
+      const lastVal = lastPoint.y;
+      const trendDiff = (lastVal - dataPoints[0].y) / Math.max(1, (sorted.length - 1));
+      const predictedVal = isVolume
+        ? Math.round(lastVal + Math.max(lastVal * 0.03, trendDiff > 0 ? trendDiff * 0.7 : 10))
+        : Math.round((lastVal + (lastVal >= 40 ? 2.5 : 1.25)) * 10) / 10;
+
+      const projectedDate = new Date(minTime + nextDayOffset * 86400000);
+
+      datasets.push({
+        label: isVolume ? '🔮 Predizione Volume (+3/5%)' : '🔮 Predizione Carico (+2.5kg)',
+        data: [
+          { x: lastPoint.x, y: lastPoint.y, isProjectionAnchor: true, rawItem: lastPoint.rawItem },
+          { x: nextDayOffset, y: predictedVal, isProjection: true, projectedDate, rawItem: { date: projectedDate.toISOString().slice(0, 10), sessionTitle: 'Prossima Sessione Stimata', weight: predictedVal, reps: lastPoint.rawItem.reps, sets: lastPoint.rawItem.sets, totalVolume: predictedVal } }
+        ],
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#ffffff',
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0,
+        fill: false,
+        order: 1
+      });
+    }
 
     const ctx = canvas.getContext('2d');
     this.currentChart = new window.Chart(ctx, {
       type: 'line',
       data: {
-        labels,
-        datasets: [
-          {
-            label: isVolume ? 'Volume Totale (kg)' : 'Carico per Rip (kg)',
-            data: dataPoints,
-            borderColor: isVolume ? '#14b8a6' : '#10b981',
-            backgroundColor: isVolume ? 'rgba(20, 184, 166, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-            borderWidth: 3,
-            pointBackgroundColor: isVolume ? '#14b8a6' : '#10b981',
-            pointBorderColor: '#ffffff',
-            pointRadius: 6,
-            pointHoverRadius: 8,
-            tension: 0.25,
-            fill: true
-          }
-        ]
+        datasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: datasets.length > 1,
+            labels: {
+              color: '#d4d4d8',
+              font: { size: 11, weight: '600' },
+              boxWidth: 14
+            }
+          },
           tooltip: {
             backgroundColor: '#18181b',
             titleColor: '#f4f4f5',
@@ -424,18 +481,30 @@ export class FundamentalsView {
             padding: 10,
             callbacks: {
               title: (ctxArr) => {
-                const idx = ctxArr[0].dataIndex;
-                const item = history[idx];
-                return `${new Date(item.date).toLocaleDateString('it-IT')} • ${item.sessionTitle}`;
+                const pt = ctxArr[0].raw;
+                if (pt.isProjection) {
+                  const d = pt.projectedDate;
+                  const dStr = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                  return `🔮 PROIEZIONE STIMATA: ${dStr} (Giorno +${pt.x})`;
+                }
+                const item = pt.rawItem;
+                const d = new Date(item.date);
+                const dStr = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                return `📅 ${dStr} (Giorno +${pt.x} dall'inizio) • ${item.sessionTitle}`;
               },
               label: (context) => {
-                const idx = context.dataIndex;
-                const item = history[idx];
-                const unit = isVolume ? ' kg totali' : ' kg';
+                const pt = context.raw;
+                if (pt.isProjection) {
+                  return [
+                    ` Target Previsto: ${pt.y} kg`,
+                    ` Stima basata sul sovraccarico progressivo`
+                  ];
+                }
+                const item = pt.rawItem;
                 return [
                   ` Carico: ${item.weight} kg`,
                   ` Serie e Rip: ${item.sets} × ${item.reps}`,
-                  ` Volume: ${item.totalVolume.toLocaleString('it-IT')} kg`,
+                  ` Volume Seduta: ${item.totalVolume.toLocaleString('it-IT')} kg`,
                   item.intensityTechniqueUsed ? ` ⚡ Tecnica: ${item.intensityTechniqueName || 'Sì'}` : ''
                 ].filter(Boolean);
               }
@@ -444,11 +513,31 @@ export class FundamentalsView {
         },
         scales: {
           x: {
-            grid: { color: 'rgba(39, 39, 42, 0.6)' },
-            ticks: { color: '#a1a1aa', font: { size: 11 } }
+            type: 'linear',
+            min: 0,
+            max: maxChartDays + 1,
+            title: {
+              display: true,
+              text: 'Linea Temporale Continua (1 unità = 1 giorno di calendario)',
+              color: '#71717a',
+              font: { size: 10, weight: 'bold' }
+            },
+            grid: {
+              color: 'rgba(39, 39, 42, 0.45)'
+            },
+            ticks: {
+              stepSize: totalSpanDays > 40 ? 5 : (totalSpanDays > 15 ? 2 : 1),
+              color: '#a1a1aa',
+              font: { size: 10 },
+              callback: function(val) {
+                if (!Number.isInteger(val) || val < 0) return '';
+                const d = new Date(minTime + val * 86400000);
+                return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+              }
+            }
           },
           y: {
-            grid: { color: 'rgba(39, 39, 42, 0.6)' },
+            grid: { color: 'rgba(39, 39, 42, 0.5)' },
             ticks: {
               color: '#a1a1aa',
               font: { size: 11 },

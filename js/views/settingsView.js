@@ -73,10 +73,15 @@ export class SettingsView {
           </div>
 
           ${cloudConfig ? `
-            <div class="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300 space-y-1">
-              <div class="font-bold flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Connessione Cloud attiva: ${cloudConfig.type === 'firebase' ? 'Google Firebase Firestore' : 'Google Drive / Apps Script'}</span>
+            <div class="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300 space-y-2">
+              <div class="font-bold flex items-center justify-between gap-1.5 flex-wrap">
+                <div class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span>Connessione Cloud: ${cloudConfig.type === 'firebase' ? 'Google Firebase Firestore (gym-mesocycle)' : 'Google Drive / Apps Script'}</span>
+                </div>
+                <button id="open-cloud-diag-btn" class="py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold text-[11px] border border-emerald-500/40 transition-all cursor-pointer">
+                  🔍 Diagnostica & Regole
+                </button>
               </div>
               <p class="text-zinc-400 text-[11px]">Ogni allenamento, esercizio e fondamentale aggiunto viene sincronizzato online istantaneamente su qualsiasi smartphone o PC.</p>
             </div>
@@ -158,6 +163,14 @@ export class SettingsView {
           cloudSync.clearConfig();
           this.render();
         }
+      });
+    }
+
+    // Diagnostica Cloud
+    const diagBtn = container.querySelector('#open-cloud-diag-btn');
+    if (diagBtn) {
+      diagBtn.addEventListener('click', () => {
+        cloudSync.showDiagnosticModal();
       });
     }
 

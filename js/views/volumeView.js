@@ -89,7 +89,6 @@ export class VolumeView {
           <button id="subtab-trends-btn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${this.subTab === 'trends' ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20' : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'}">
             <span>📈</span>
             <span>Andamento Volumi nel Tempo</span>
-            <span class="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold ${this.subTab === 'trends' ? 'bg-zinc-950/20 text-zinc-950' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'}">Grafico</span>
           </button>
         </div>
       </div>
@@ -346,6 +345,19 @@ export class VolumeView {
           </div>
         </div>
 
+        <!-- Box Guida Utente -->
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-sm flex-shrink-0">
+            💡
+          </div>
+          <div class="space-y-1 text-xs text-zinc-300">
+            <span class="font-bold text-zinc-100 text-sm block">Guida alla gestione della sessione</span>
+            <p class="text-zinc-400 leading-relaxed">
+              In questa sezione puoi <strong>creare un nuovo allenamento</strong> e registrare gli esercizi eseguiti inserendo carichi, serie e ripetizioni, oppure <strong>modificare allenamenti già esistenti</strong> selezionandoli dallo storico in alto o editando direttamente i campi qui sotto.
+            </p>
+          </div>
+        </div>
+
         <!-- RIEPILOGO TOTALI SESSIONE -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center">
@@ -381,30 +393,14 @@ export class VolumeView {
           </div>
         </div>
 
-        <!-- GRIGLIA DEGLI 8 GRUPPI MUSCOLARI (VOLUME TOTALE SESSIONE) -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-heading font-bold text-zinc-100 flex items-center gap-2">
-                <span>Volume Totale per Gruppo Muscolare</span>
-              </h3>
-              <p class="text-xs text-zinc-400">Ripartizione del volume (serie e tonnellaggio) tra gli 8 gruppi muscolari per questa sessione.</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            ${muscleCardsHTML}
-          </div>
-        </div>
-
-        <!-- SEZIONE ESERCIZI DELLA SESSIONE -->
+        <!-- SOTTOSEZIONE 1: ESERCIZI DELL'ALLENAMENTO (Rinominata da Esercizi della Sessione) -->
         <div class="space-y-4 pt-2">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 class="text-lg font-heading font-bold text-zinc-100 flex items-center gap-2">
-                <span>Esercizi della Sessione (${currentSession.exercises?.length || 0})</span>
+                <span>Esercizi dell'allenamento (${currentSession.exercises?.length || 0})</span>
               </h3>
-              <p class="text-xs text-zinc-400">Inserisci o modifica carichi, ripetizioni, serie, nomi e tecniche di intensità.</p>
+              <p class="text-xs text-zinc-400">Inserisci o modifica carichi, ripetizioni, serie, nomi e tecniche di intensità di questa seduta.</p>
             </div>
 
             <button id="open-add-exercise-modal-btn" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer self-start sm:self-auto">
@@ -422,8 +418,8 @@ export class VolumeView {
               <div class="w-12 h-12 rounded-2xl bg-zinc-800 text-emerald-400 flex items-center justify-center mx-auto">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
               </div>
-              <h4 class="text-sm font-bold text-zinc-200">Nessun esercizio ancora aggiunto a questa sessione</h4>
-              <p class="text-xs text-zinc-400 max-w-sm mx-auto">Aggiungi il primo esercizio oppure duplica gli esercizi dell'ultimo allenamento.</p>
+              <h4 class="text-sm font-bold text-zinc-200">Nessun esercizio ancora aggiunto a questo allenamento</h4>
+              <p class="text-xs text-zinc-400 max-w-sm mx-auto">Aggiungi il primo esercizio oppure duplica gli esercizi dell'ultimo allenamento registrato.</p>
               <div class="flex items-center justify-center gap-2 pt-2">
                 <button id="empty-add-ex-btn" class="py-2 px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all shadow-md cursor-pointer">
                   + Aggiungi Esercizio
@@ -431,6 +427,22 @@ export class VolumeView {
               </div>
             </div>
           `}
+        </div>
+
+        <!-- SOTTOSEZIONE 2: VOLUME TOTALE PER GRUPPO MUSCOLARE (Posizionata DOPO gli esercizi) -->
+        <div class="space-y-3 pt-4 border-t border-zinc-800/80">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-heading font-bold text-zinc-100 flex items-center gap-2">
+                <span>Volume Totale per Gruppo Muscolare</span>
+              </h3>
+              <p class="text-xs text-zinc-400">Ripartizione del volume (serie e tonnellaggio) tra gli 8 gruppi muscolari per gli esercizi di questa seduta.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            ${muscleCardsHTML}
+          </div>
         </div>
       </div>
 

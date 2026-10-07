@@ -1,7 +1,7 @@
 {
-  "name": "Workout Tracker",
-  "short_name": ""Workout",
-  "description": "Applicazione per monitorare i progressi in palestra",
+  "name": "Mesocycle Tracker • Ricomposizione Corporea",
+  "short_name": "Mesociclo",
+  "description": "Tracker del mesociclo di ricomposizione corporea a blocchi puri con sovraccarico progressivo e dieta 16/8",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#09090b",

@@ -279,16 +279,20 @@ export class VolumeView {
         <!-- Barra di Controllo Sessione -->
         <div class="bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div class="space-y-1 flex-1">
+              <div class="flex items-center gap-3">
+                <span class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex-shrink-0">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                 </span>
-                <div>
-                  <h3 class="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
-                    <span>${currentSession.title}</span>
-                  </h3>
-                  <p class="text-xs text-zinc-400">Sessione di allenamento di <strong>${user.fullName}</strong></p>
+                <div class="flex-1 max-w-xl">
+                  <!-- Titolo Allenamento Direttamente Modificabile -->
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="session-title-input" value="${currentSession.title}" placeholder="Nome dell'allenamento..." class="bg-zinc-800/40 hover:bg-zinc-800 focus:bg-zinc-800 border border-transparent hover:border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-1 text-base sm:text-xl font-heading font-black text-zinc-100 focus:outline-none transition-all w-full" title="Clicca per modificare il nome dell'allenamento">
+                    <button type="button" id="focus-title-btn" class="p-1 text-zinc-500 hover:text-emerald-400 transition-colors cursor-pointer flex-shrink-0" title="Modifica nome allenamento">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                  </div>
+                  <p class="text-xs text-zinc-400 mt-0.5">Sessione di allenamento di <strong>${user.fullName}</strong></p>
                 </div>
               </div>
             </div>
@@ -308,27 +312,19 @@ export class VolumeView {
 
           <!-- Dettagli Sessione: Data e Selettore Storico Sessioni -->
           <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-800/80">
-            <div class="flex items-center gap-2.5 flex-wrap">
-              <!-- Selettore Data Potenziato: Digitazione Libera GG/MM/AAAA + Calendario + Oggi/Ieri -->
-              <div class="flex items-center gap-2 bg-zinc-800/80 border border-zinc-700 rounded-xl px-2.5 py-1.5 flex-wrap">
-                <label for="session-date-picker" class="text-xs text-zinc-400 font-semibold flex items-center gap-1 cursor-pointer" title="Apri calendario visuale">
+            <div class="flex items-center gap-2.5">
+              <!-- Unico Selettore Data Funzionante: Testo GG/MM/AAAA + Icona Calendario per scelta visuale -->
+              <div class="flex items-center gap-2 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3 py-1.5">
+                <span class="text-xs text-zinc-400 font-semibold flex items-center gap-1.5 cursor-pointer" id="calendar-icon-btn" title="Apri calendario visuale">
                   <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   <span>Data:</span>
-                </label>
-
-                <!-- Input testuale GG/MM/AAAA (permette di digitare liberamente giorno, mese e anno a 4 cifre) -->
-                <input type="text" id="session-date-text-input" value="${formatIsoToItalianDate(currentSession.date)}" placeholder="GG/MM/AAAA" class="bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs font-bold text-zinc-100 w-28 text-center focus:outline-none focus:border-emerald-500" title="Digita la data nel formato GG/MM/AAAA">
-
-                <!-- Native date picker per click sul calendario -->
-                <input type="date" id="session-date-picker" value="${currentSession.date}" class="bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs font-bold text-zinc-100 focus:outline-none focus:border-emerald-500 cursor-pointer" title="Seleziona da calendario">
-
-                <!-- Bottoni rapidi Oggi / Ieri -->
-                <button type="button" id="session-date-today-btn" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-zinc-700 hover:bg-zinc-600 text-zinc-200 hover:text-emerald-400 transition-colors cursor-pointer" title="Imposta data ad oggi">Oggi</button>
-                <button type="button" id="session-date-yesterday-btn" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-zinc-700 hover:bg-zinc-600 text-zinc-200 hover:text-emerald-400 transition-colors cursor-pointer" title="Imposta data a ieri">Ieri</button>
+                </span>
+                <input type="text" id="session-date-input" value="${formatIsoToItalianDate(currentSession.date)}" placeholder="GG/MM/AAAA" class="bg-zinc-900 border border-zinc-700/80 rounded-lg px-2.5 py-1 text-xs font-bold text-zinc-100 w-28 text-center focus:outline-none focus:border-emerald-500" title="Digita la data nel formato GG/MM/AAAA">
+                <button type="button" id="session-open-calendar-btn" class="p-1 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer text-sm" title="Apri calendario visuale">
+                  📅
+                </button>
+                <input type="date" id="session-hidden-date-picker" value="${currentSession.date}" class="sr-only">
               </div>
-
-              <!-- Titolo Sessione Modificabile -->
-              <input type="text" id="session-title-input" value="${currentSession.title}" placeholder="Titolo sessione..." class="bg-zinc-800/60 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs font-bold text-zinc-200 focus:outline-none focus:border-emerald-500 max-w-[190px]">
             </div>
 
             <!-- Selettore Sessioni Precedenti -->
@@ -1042,9 +1038,11 @@ export class VolumeView {
       });
     }
 
-    // GESTIONE DATA SESSIONE: Testo libero GG/MM/AAAA + Calendario Picker + Oggi/Ieri
-    const dateTextInput = container.querySelector('#session-date-text-input');
-    const datePicker = container.querySelector('#session-date-picker');
+    // GESTIONE DATA SESSIONE: Unico campo data testuale GG/MM/AAAA + Calendario picker nativo
+    const dateInput = container.querySelector('#session-date-input');
+    const hiddenDatePicker = container.querySelector('#session-hidden-date-picker');
+    const openCalendarBtn = container.querySelector('#session-open-calendar-btn');
+    const calendarIconBtn = container.querySelector('#calendar-icon-btn');
 
     const applyDateChange = (isoDate) => {
       if (isoDate && isoDate !== currentSession.date) {
@@ -1052,54 +1050,83 @@ export class VolumeView {
       }
     };
 
-    if (dateTextInput) {
-      dateTextInput.addEventListener('change', () => {
-        const parsedIso = parseItalianDateToIso(dateTextInput.value);
-        if (parsedIso) {
-          applyDateChange(parsedIso);
-        } else {
-          // Ripristina valore formattato valido
-          dateTextInput.value = formatIsoToItalianDate(currentSession.date);
+    const triggerCalendarPicker = () => {
+      if (hiddenDatePicker) {
+        try {
+          if (typeof hiddenDatePicker.showPicker === 'function') {
+            hiddenDatePicker.showPicker();
+            return;
+          }
+        } catch (err) {
+          console.warn('showPicker non supportato o limitato, fallback click:', err);
         }
-      });
-      dateTextInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          dateTextInput.blur();
-        }
-      });
+        hiddenDatePicker.focus();
+        hiddenDatePicker.click();
+      }
+    };
+
+    if (openCalendarBtn) {
+      openCalendarBtn.addEventListener('click', triggerCalendarPicker);
+    }
+    if (calendarIconBtn) {
+      calendarIconBtn.addEventListener('click', triggerCalendarPicker);
     }
 
-    if (datePicker) {
-      datePicker.addEventListener('change', (e) => {
+    if (hiddenDatePicker) {
+      hiddenDatePicker.addEventListener('change', (e) => {
         if (e.target.value) {
           applyDateChange(e.target.value);
         }
       });
     }
 
-    const todayBtn = container.querySelector('#session-date-today-btn');
-    if (todayBtn) {
-      todayBtn.addEventListener('click', () => {
-        const todayIso = new Date().toISOString().slice(0, 10);
-        applyDateChange(todayIso);
+    if (dateInput) {
+      const saveDateFromInput = () => {
+        const parsedIso = parseItalianDateToIso(dateInput.value);
+        if (parsedIso) {
+          applyDateChange(parsedIso);
+        } else {
+          // Ripristina valore formattato valido se il testo inserito non è una data corretta
+          dateInput.value = formatIsoToItalianDate(currentSession.date);
+        }
+      };
+
+      dateInput.addEventListener('change', saveDateFromInput);
+      dateInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveDateFromInput();
+          dateInput.blur();
+        }
       });
     }
 
-    const yesterdayBtn = container.querySelector('#session-date-yesterday-btn');
-    if (yesterdayBtn) {
-      yesterdayBtn.addEventListener('click', () => {
-        const d = new Date(Date.now() - 86400000);
-        const yestIso = d.toISOString().slice(0, 10);
-        applyDateChange(yestIso);
-      });
-    }
-
-    // Modifica titolo sessione
+    // GESTIONE TITOLO SESSIONE: Modifica diretta inline + tasto Enter + pulsante matita
     const titleInput = container.querySelector('#session-title-input');
+    const focusTitleBtn = container.querySelector('#focus-title-btn');
+
     if (titleInput) {
-      titleInput.addEventListener('change', (e) => {
-        state.updateSession(currentSession.id, { title: e.target.value });
+      const saveTitle = () => {
+        const newTitle = titleInput.value.trim() || 'Allenamento';
+        if (newTitle !== currentSession.title) {
+          state.updateSession(currentSession.id, { title: newTitle });
+        }
+      };
+
+      titleInput.addEventListener('change', saveTitle);
+      titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveTitle();
+          titleInput.blur();
+        }
+      });
+    }
+
+    if (focusTitleBtn && titleInput) {
+      focusTitleBtn.addEventListener('click', () => {
+        titleInput.focus();
+        titleInput.select();
       });
     }
 

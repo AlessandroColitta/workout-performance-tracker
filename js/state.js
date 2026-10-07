@@ -285,6 +285,10 @@ class StateManager {
     this.save();
   }
 
+  updateSession(sessionId, data) {
+    this.updateSessionInfo(sessionId, data);
+  }
+
   /* ========================================================
      GESTIONE ESERCIZI NELLA SESSIONE
      ======================================================== */

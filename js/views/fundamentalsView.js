@@ -51,25 +51,6 @@ export class FundamentalsView {
 
     const deltaPct = firstWeight > 0 ? Math.round(((lastWeight - firstWeight) / firstWeight) * 100) : 0;
 
-    // Generazione Pillole Esercizi Fondamentali
-    const fundPillsHTML = fundamentals.map(f => {
-      const isSelected = f.name.toLowerCase() === this.selectedFundamentalName?.toLowerCase();
-      const historyCount = state.getFundamentalHistory(f.name).length;
-
-      return `
-        <div class="inline-flex items-center gap-1">
-          <button class="select-fund-btn py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${isSelected ? 'bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 ring-2 ring-amber-400/40' : 'bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60'}" data-name="${f.name}">
-            <span>⭐</span>
-            <span>${f.name}</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] ${isSelected ? 'bg-zinc-950/20 text-zinc-950 font-black' : 'bg-zinc-700 text-zinc-400'}">${historyCount}</span>
-          </button>
-          <button class="remove-fund-btn p-1 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer" data-name="${f.name}" title="Rimuovi dai fondamentali">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-          </button>
-        </div>
-      `;
-    }).join('');
-
     // Tabella Storica delle sessioni per questo esercizio
     const tableRowsHTML = activeHistory.slice().reverse().map(item => `
       <tr class="border-b border-zinc-800/60 hover:bg-zinc-800/30 transition-colors">
@@ -111,7 +92,7 @@ export class FundamentalsView {
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                 </span>
                 <div>
-                  <h3 class="text-lg font-heading font-bold text-zinc-100">Esercizi Fondamentali & Benchmark</h3>
+                  <h3 class="text-lg font-heading font-bold text-zinc-100">Esercizi Fondamentali</h3>
                   <p class="text-xs text-zinc-400">Gli esercizi che ripeti a ogni allenamento e usi come riferimento per monitorare i tuoi progressi.</p>
                 </div>
               </div>
@@ -124,7 +105,7 @@ export class FundamentalsView {
             </button>
           </div>
 
-          <!-- Barra Selettore Esercizi Fondamentali: Menu a Tendina (Mobile-Friendly) + Pillole A Capo Automatico -->
+          <!-- Barra Selettore Esercizi Fondamentali: Menu a Tendina (Mobile-Friendly) -->
           <div class="pt-3 border-t border-zinc-800/80 space-y-3">
             <div class="flex items-center justify-between">
               <label for="select-fund-dropdown" class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -148,7 +129,7 @@ export class FundamentalsView {
                       const historyCount = state.getFundamentalHistory(f.name).length;
                       return `
                         <option value="${f.name}" ${isSelected ? 'selected' : ''}>
-                          ⭐ ${f.name} (${f.muscleGroup || 'Benchmark'} • ${historyCount} sedute)
+                          ${f.name} (${f.muscleGroup || 'Fondamentale'} • ${historyCount} sedute)
                         </option>
                       `;
                     }).join('')}
@@ -163,13 +144,6 @@ export class FundamentalsView {
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
                 ` : ''}
-              </div>
-
-              <!-- Pillole Rapide con A Capo Automatico (Tutte visibili senza scorrimento orizzontale) -->
-              <div class="pt-0.5">
-                <div class="flex flex-wrap gap-2">
-                  ${fundPillsHTML}
-                </div>
               </div>
             ` : `
               <div class="text-xs text-zinc-500 italic">Nessun esercizio fondamentale ancora registrato. Clicca su "+ Aggiungi Fondamentale" per iniziare.</div>
@@ -350,29 +324,6 @@ export class FundamentalsView {
         }
       });
     }
-
-    // Cambio fondamentale selezionato tramite Pillola Rapida
-    container.querySelectorAll('.select-fund-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.selectedFundamentalName = btn.getAttribute('data-name');
-        this.render();
-      });
-    });
-
-    // Rimozione fondamentale
-    container.querySelectorAll('.remove-fund-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const name = btn.getAttribute('data-name');
-        if (confirm(`Rimuovere "${name}" dalla lista degli esercizi fondamentali?`)) {
-          state.removeFundamentalExercise(name);
-          if (this.selectedFundamentalName?.toLowerCase() === name.toLowerCase()) {
-            this.selectedFundamentalName = null;
-          }
-          this.render();
-        }
-      });
-    });
 
     // Toggle metrica grafico
     const weightBtn = container.querySelector('#fund-metric-weight-btn');

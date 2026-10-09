@@ -546,7 +546,7 @@ export class VolumeView {
             <div id="modal-fund-box" class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 transition-all">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" id="modal-ex-is-fundamental" class="rounded border-amber-600 bg-zinc-800 text-amber-500 focus:ring-amber-500">
-                <span id="modal-fund-label" class="text-xs font-bold text-amber-300">Imposta questo esercizio come Fondamentale (Benchmark)</span>
+                <span id="modal-fund-label" class="text-xs font-bold text-amber-300">Imposta questo esercizio come Fondamentale</span>
               </label>
               <div id="modal-fund-hint" class="hidden text-[11px] text-amber-400 font-semibold mt-1.5 pl-6 flex items-center gap-1">
                 <span>⭐ Riconosciuto automaticamente tra i tuoi Fondamentali definiti.</span>

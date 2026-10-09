@@ -6,6 +6,19 @@ import { SettingsView } from './views/settingsView.js';
 import { cloudSync } from './cloudSync.js';
 import { timer } from './timer.js';
 
+// Intercettazione globale dell'evento di installazione PWA
+window.deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  window.deferredPwaPrompt = e;
+  window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
+});
+
+window.addEventListener('appinstalled', () => {
+  window.deferredPwaPrompt = null;
+  window.dispatchEvent(new CustomEvent('pwa-installed'));
+});
+
 /**
  * App Controller: gestisce la navigazione tra le schermate e la reattività dello stato.
  */

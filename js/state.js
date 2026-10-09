@@ -221,16 +221,22 @@ class StateManager {
   }
 
   /**
-   * Duplica gli esercizi dell'ultima sessione creandone una nuova per oggi.
+   * Duplica una qualsiasi sessione specifica (identificata da sourceSessionId).
+   * @param {string} sourceSessionId - ID della sessione sorgente da cui copiare gli esercizi.
+   * @param {object} options - Opzioni:
+   *   - targetSessionId: se specificato, importa/copia gli esercizi nella sessione indicata.
+   *   - replaceExisting: boolean, se true sostituisce gli esercizi esistenti nella sessione target.
+   *   - date: data YYYY-MM-DD per la nuova sessione (default: oggi).
+   *   - title: titolo per la nuova sessione (default: `${sourceSession.title} (Copia)`).
    */
-  duplicateLastSession() {
+  duplicateSession(sourceSessionId, options = {}) {
     const user = this.getCurrentUser();
     if (!user || !user.sessions || user.sessions.length === 0) return null;
 
-    const lastSession = user.sessions[0];
-    const today = new Date().toISOString().split('T')[0];
+    const sourceSession = user.sessions.find(s => s.id === sourceSessionId);
+    if (!sourceSession || !Array.isArray(sourceSession.exercises)) return null;
 
-    const clonedExercises = lastSession.exercises.map(ex => ({
+    const clonedExercises = sourceSession.exercises.map(ex => ({
       id: 'ex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: ex.name,
       muscleGroup: ex.muscleGroup,
@@ -242,19 +248,46 @@ class StateManager {
       isFundamental: !!ex.isFundamental
     }));
 
-    const sessionCount = user.sessions.length + 1;
+    // Se è specificata una sessione di destinazione esistente (es. importa in questa scheda)
+    if (options.targetSessionId) {
+      const targetSession = user.sessions.find(s => s.id === options.targetSessionId);
+      if (targetSession) {
+        if (!Array.isArray(targetSession.exercises) || options.replaceExisting) {
+          targetSession.exercises = clonedExercises;
+        } else {
+          targetSession.exercises.push(...clonedExercises);
+        }
+        this.save();
+        return targetSession;
+      }
+    }
+
+    // Altrimenti crea una nuova sessione (default: per la data odierna)
+    const today = options.date || new Date().toISOString().split('T')[0];
+    const newTitle = options.title || `${sourceSession.title} (Copia)`;
+
     const newSession = {
       id: 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       date: today,
-      title: `${lastSession.title} (Copia)`,
-      notes: '',
+      title: newTitle,
+      notes: sourceSession.notes || '',
       exercises: clonedExercises
     };
 
     user.sessions.unshift(newSession);
+    user.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
     this.state.currentSessionId = newSession.id;
     this.save();
     return newSession;
+  }
+
+  /**
+   * Duplica gli esercizi dell'ultima sessione creandone una nuova per oggi.
+   */
+  duplicateLastSession() {
+    const user = this.getCurrentUser();
+    if (!user || !user.sessions || user.sessions.length === 0) return null;
+    return this.duplicateSession(user.sessions[0].id);
   }
 
   deleteSession(sessionId) {
@@ -293,7 +326,7 @@ class StateManager {
      GESTIONE ESERCIZI NELLA SESSIONE
      ======================================================== */
 
-  addExerciseToSession(sessionId, { name, muscleGroup, weight, reps, sets, intensityTechniqueUsed, intensityTechniqueName }) {
+  addExerciseToSession(sessionId, { name, muscleGroup, weight, reps, sets, intensityTechniqueUsed, intensityTechniqueName, isFundamental }) {
     const user = this.getCurrentUser();
     if (!user) return null;
 
@@ -302,7 +335,8 @@ class StateManager {
 
     if (!Array.isArray(sess.exercises)) sess.exercises = [];
 
-    const isFund = this.isFundamental(name);
+    // Se l'esercizio è già impostato come fondamentale nell'account, o se è stato spuntato
+    const isFund = this.isFundamental(name) || !!isFundamental;
     const newEx = {
       id: 'ex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: name.trim(),

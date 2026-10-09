@@ -296,15 +296,15 @@ export class VolumeView {
               </div>
             </div>
 
-            <!-- Pulsanti Nuova Sessione e Duplica -->
+            <!-- Pulsanti Nuova Sessione e Copia -->
             <div class="flex flex-wrap items-center gap-2">
               <button id="create-new-session-btn" class="py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <span>Nuovo Allenamento</span>
               </button>
-              <button id="duplicate-session-btn" class="py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs transition-all flex items-center gap-1.5 border border-zinc-700 cursor-pointer" title="Copia gli esercizi dell'ultimo allenamento per iniziare subito">
+              <button id="open-copy-session-modal-btn" class="py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs transition-all flex items-center gap-1.5 border border-zinc-700 cursor-pointer" title="Scegli quale allenamento precedente copiare">
                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <span>Duplica Ultimo</span>
+                <span>Copia Allenamento</span>
               </button>
             </div>
           </div>
@@ -337,6 +337,9 @@ export class VolumeView {
                     </option>
                   `).join('')}
                 </select>
+                <button id="duplicate-current-session-btn" class="p-1.5 text-zinc-400 hover:text-emerald-400 rounded-lg hover:bg-zinc-800 cursor-pointer" title="Copia questo specifico allenamento in una nuova scheda per oggi">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
                 <button id="delete-session-btn" class="p-1.5 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-zinc-800 cursor-pointer" title="Elimina questa sessione">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
@@ -353,7 +356,7 @@ export class VolumeView {
           <div class="space-y-1 text-xs text-zinc-300">
             <span class="font-bold text-zinc-100 text-sm block">Guida alla gestione della sessione</span>
             <p class="text-zinc-400 leading-relaxed">
-              In questa sezione puoi <strong>creare un nuovo allenamento</strong> e registrare gli esercizi eseguiti inserendo carichi, serie e ripetizioni, oppure <strong>modificare allenamenti già esistenti</strong> selezionandoli dallo storico in alto o editando direttamente i campi qui sotto.
+              In questa sezione puoi <strong>creare un nuovo allenamento</strong> o <strong>copiare qualsiasi allenamento precedente</strong> con il pulsante <em>"Copia Allenamento"</em>. Puoi anche selezionare le sedute passate dallo <strong>"Storico"</strong> per visualizzarle o modificarle.
             </p>
           </div>
         </div>
@@ -419,10 +422,14 @@ export class VolumeView {
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
               </div>
               <h4 class="text-sm font-bold text-zinc-200">Nessun esercizio ancora aggiunto a questo allenamento</h4>
-              <p class="text-xs text-zinc-400 max-w-sm mx-auto">Aggiungi il primo esercizio oppure duplica gli esercizi dell'ultimo allenamento registrato.</p>
-              <div class="flex items-center justify-center gap-2 pt-2">
+              <p class="text-xs text-zinc-400 max-w-sm mx-auto">Aggiungi il primo esercizio oppure copia gli esercizi da un qualsiasi allenamento precedente.</p>
+              <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
                 <button id="empty-add-ex-btn" class="py-2 px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all shadow-md cursor-pointer">
                   + Aggiungi Esercizio
+                </button>
+                <button id="empty-copy-ex-btn" class="py-2 px-3.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs transition-all border border-zinc-700 flex items-center gap-1.5 cursor-pointer">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span>Copia da Allenamento Precedente</span>
                 </button>
               </div>
             </div>
@@ -536,11 +543,14 @@ export class VolumeView {
             </div>
 
             <!-- Checkbox Imposta come Fondamentale -->
-            <div class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+            <div id="modal-fund-box" class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 transition-all">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" id="modal-ex-is-fundamental" class="rounded border-amber-600 bg-zinc-800 text-amber-500 focus:ring-amber-500">
-                <span class="text-xs font-bold text-amber-300">Aggiungi questo esercizio ai miei Fondamentali (Benchmark)</span>
+                <span id="modal-fund-label" class="text-xs font-bold text-amber-300">Imposta questo esercizio come Fondamentale (Benchmark)</span>
               </label>
+              <div id="modal-fund-hint" class="hidden text-[11px] text-amber-400 font-semibold mt-1.5 pl-6 flex items-center gap-1">
+                <span>⭐ Riconosciuto automaticamente tra i tuoi Fondamentali definiti.</span>
+              </div>
             </div>
 
             <!-- Bottoni Salva -->
@@ -553,6 +563,86 @@ export class VolumeView {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- MODALE COPIA DA ALLENAMENTO PRECEDENTE -->
+      <div id="copy-session-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-zinc-900 border border-zinc-700/80 rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-zinc-100">Copia Allenamento Precedente</h3>
+                <p class="text-xs text-zinc-400">Scegli da quale allenamento passato copiare esercizi, carichi e serie</p>
+              </div>
+            </div>
+            <button id="close-copy-modal-btn" class="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <!-- Barra di Ricerca / Filtro Rapido -->
+          <div class="relative">
+            <input type="text" id="copy-modal-search" placeholder="Cerca per titolo o data (es. 'Spalle', 'Quad', 'Week 2')..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl py-2 px-3.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <!-- Lista degli Allenamenti -->
+          <div id="copy-modal-sessions-list" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+            ${user.sessions.filter(s => (s.exercises?.length || 0) > 0).map(s => {
+              const isCurrent = s.id === currentSession.id;
+              const exNames = (s.exercises || []).map(e => e.name).slice(0, 4).join(', ');
+              const moreCount = (s.exercises?.length || 0) - 4;
+              const exSummary = moreCount > 0 ? `${exNames} + altri ${moreCount}` : exNames;
+              const tonnage = (s.exercises || []).reduce((acc, e) => acc + ((e.sets || 0) * (e.reps || 0) * (e.weight || 0)), 0);
+
+              return `
+                <div class="copy-session-card bg-zinc-800/60 hover:bg-zinc-800 border ${isCurrent ? 'border-emerald-500/40 bg-zinc-800/80' : 'border-zinc-700/70'} rounded-xl p-3.5 transition-all space-y-2" data-search="${s.title.toLowerCase()} ${s.date}">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-zinc-100">${s.title}</span>
+                        ${isCurrent ? '<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Attivo</span>' : ''}
+                      </div>
+                      <div class="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-400">
+                        <span>📅 ${formatIsoToItalianDate(s.date)}</span>
+                        <span>•</span>
+                        <span>🏋️ ${s.exercises?.length || 0} esercizi</span>
+                        <span>•</span>
+                        <span class="text-emerald-400 font-semibold">${tonnage.toLocaleString('it-IT')} kg</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-[11px] text-zinc-400 truncate bg-zinc-900/60 px-2.5 py-1.5 rounded-lg border border-zinc-800">
+                    <span class="text-zinc-500 font-semibold">Esercizi:</span> ${exSummary || 'Nessuno'}
+                  </div>
+
+                  <div class="flex items-center justify-end gap-2 pt-1 border-t border-zinc-700/40">
+                    <button type="button" class="btn-import-into-current py-1.5 px-3 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-xs font-bold transition-all cursor-pointer" data-sid="${s.id}">
+                      Importa in questa scheda
+                    </button>
+                    <button type="button" class="btn-copy-as-new py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold transition-all shadow-md cursor-pointer" data-sid="${s.id}">
+                      Copia come Nuovo per Oggi
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${user.sessions.filter(s => (s.exercises?.length || 0) > 0).length === 0 ? `
+              <div class="text-center py-8 text-xs text-zinc-400">
+                Non ci sono ancora allenamenti con esercizi registrati da poter copiare.
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="pt-2 border-t border-zinc-800 flex justify-end">
+            <button type="button" id="cancel-copy-modal-btn" class="py-2 px-4 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-xs hover:bg-zinc-700 transition-all cursor-pointer">
+              Chiudi
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -1042,11 +1132,88 @@ export class VolumeView {
       });
     }
 
-    // Pulsante Duplica Ultima Sessione
-    const duplicateBtn = container.querySelector('#duplicate-session-btn');
-    if (duplicateBtn) {
-      duplicateBtn.addEventListener('click', () => {
-        state.duplicateLastSession();
+    // GESTIONE MODALE COPIA DA QUALSIASI ALLENAMENTO PRECEDENTE
+    const copyModal = container.querySelector('#copy-session-modal');
+    const openCopyModalBtn = container.querySelector('#open-copy-session-modal-btn');
+    const emptyCopyBtn = container.querySelector('#empty-copy-ex-btn');
+    const closeCopyModalBtn = container.querySelector('#close-copy-modal-btn');
+    const cancelCopyModalBtn = container.querySelector('#cancel-copy-modal-btn');
+    const copySearchInput = container.querySelector('#copy-modal-search');
+    const duplicateCurrentBtn = container.querySelector('#duplicate-current-session-btn');
+
+    const showCopyModal = () => {
+      if (copyModal) {
+        copyModal.classList.remove('hidden');
+        if (copySearchInput) {
+          copySearchInput.value = '';
+          copySearchInput.focus();
+        }
+        container.querySelectorAll('.copy-session-card').forEach(c => c.classList.remove('hidden'));
+      }
+    };
+
+    const hideCopyModal = () => {
+      if (copyModal) {
+        copyModal.classList.add('hidden');
+      }
+    };
+
+    if (openCopyModalBtn) openCopyModalBtn.addEventListener('click', showCopyModal);
+    if (emptyCopyBtn) emptyCopyBtn.addEventListener('click', showCopyModal);
+    if (closeCopyModalBtn) closeCopyModalBtn.addEventListener('click', hideCopyModal);
+    if (cancelCopyModalBtn) cancelCopyModalBtn.addEventListener('click', hideCopyModal);
+
+    if (copyModal) {
+      copyModal.addEventListener('click', (e) => {
+        if (e.target === copyModal) hideCopyModal();
+      });
+    }
+
+    if (copySearchInput) {
+      copySearchInput.addEventListener('input', () => {
+        const query = copySearchInput.value.toLowerCase().trim();
+        container.querySelectorAll('.copy-session-card').forEach(card => {
+          const searchData = card.getAttribute('data-search') || '';
+          if (!query || searchData.includes(query)) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    }
+
+    // Copia come Nuovo Allenamento per Oggi
+    container.querySelectorAll('.btn-copy-as-new').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sid = btn.getAttribute('data-sid');
+        if (sid) {
+          state.duplicateSession(sid);
+          hideCopyModal();
+        }
+      });
+    });
+
+    // Importa nella Sessione Corrente Aperta
+    container.querySelectorAll('.btn-import-into-current').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sid = btn.getAttribute('data-sid');
+        if (sid) {
+          if (currentSession.exercises && currentSession.exercises.length > 0) {
+            if (!confirm('La scheda corrente contiene già degli esercizi. Vuoi sostituirli con gli esercizi di questa sessione?')) {
+              return;
+            }
+          }
+          state.duplicateSession(sid, { targetSessionId: currentSession.id, replaceExisting: true });
+          hideCopyModal();
+        }
+      });
+    });
+
+    // Duplica rapido della sessione attualmente visualizzata
+    if (duplicateCurrentBtn) {
+      duplicateCurrentBtn.addEventListener('click', () => {
+        state.duplicateSession(currentSession.id);
       });
     }
 
@@ -1174,6 +1341,38 @@ export class VolumeView {
     const nameInput = container.querySelector('#modal-ex-name');
     const datalist = container.querySelector('#modal-ex-suggestions');
     const pillsContainer = container.querySelector('#modal-ex-quick-pills');
+    const fundBox = container.querySelector('#modal-fund-box');
+    const fundCheckbox = container.querySelector('#modal-ex-is-fundamental');
+    const fundHint = container.querySelector('#modal-fund-hint');
+
+    // Funzione per sincronizzare automaticamente lo stato di Fondamentale dell'esercizio
+    const checkAndSyncFundamentalStatus = (name) => {
+      if (!fundCheckbox) return;
+      const isAlreadyFund = state.isFundamental(name);
+      if (isAlreadyFund) {
+        fundCheckbox.checked = true;
+        if (fundHint) fundHint.classList.remove('hidden');
+        if (fundBox) {
+          fundBox.classList.add('bg-amber-500/15', 'border-amber-500/40');
+          fundBox.classList.remove('bg-amber-500/5', 'border-amber-500/20');
+        }
+      } else {
+        if (fundHint) fundHint.classList.add('hidden');
+        if (fundBox) {
+          fundBox.classList.remove('bg-amber-500/15', 'border-amber-500/40');
+          fundBox.classList.add('bg-amber-500/5', 'border-amber-500/20');
+        }
+      }
+    };
+
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        checkAndSyncFundamentalStatus(nameInput.value);
+      });
+      nameInput.addEventListener('change', () => {
+        checkAndSyncFundamentalStatus(nameInput.value);
+      });
+    }
 
     // Funzione per aggiornare suggerimenti intelligenti e pillole in base al gruppo muscolare
     const updateSuggestionsForGroup = (selectedGroup) => {
@@ -1185,17 +1384,22 @@ export class VolumeView {
 
       // Popola le pillole cliccabili rapide
       if (names.length > 0) {
-        pillsContainer.innerHTML = names.map(n => `
-          <button type="button" class="quick-suggest-pill px-2.5 py-1 rounded-lg text-xs bg-zinc-800 hover:bg-emerald-500 hover:text-zinc-950 text-zinc-200 border border-zinc-700/80 hover:border-emerald-500 font-medium transition-all cursor-pointer" data-fill="${n}">
-            ${n}
-          </button>
-        `).join('');
+        pillsContainer.innerHTML = names.map(n => {
+          const isFund = state.isFundamental(n);
+          return `
+            <button type="button" class="quick-suggest-pill px-2.5 py-1 rounded-lg text-xs bg-zinc-800 hover:bg-emerald-500 hover:text-zinc-950 text-zinc-200 border ${isFund ? 'border-amber-500/50 bg-amber-500/10' : 'border-zinc-700/80'} hover:border-emerald-500 font-medium transition-all cursor-pointer flex items-center gap-1" data-fill="${n}">
+              ${isFund ? '<span>⭐</span>' : ''}
+              <span>${n}</span>
+            </button>
+          `;
+        }).join('');
 
         pillsContainer.querySelectorAll('.quick-suggest-pill').forEach(btn => {
           btn.addEventListener('click', () => {
             const chosen = btn.getAttribute('data-fill');
             if (nameInput) {
               nameInput.value = chosen;
+              checkAndSyncFundamentalStatus(chosen);
               const weightInput = container.querySelector('#modal-ex-weight');
               if (weightInput) weightInput.focus();
             }
@@ -1216,6 +1420,7 @@ export class VolumeView {
       if (modal) {
         modal.classList.remove('hidden');
         if (groupSelect) updateSuggestionsForGroup(groupSelect.value);
+        if (nameInput) checkAndSyncFundamentalStatus(nameInput.value);
       }
     };
     const hideModal = () => { if (modal) modal.classList.add('hidden'); };
@@ -1256,15 +1461,17 @@ export class VolumeView {
           reps,
           sets,
           intensityTechniqueUsed,
-          intensityTechniqueName
+          intensityTechniqueName,
+          isFundamental: isFund
         });
 
-        if (isFund) {
+        if (isFund && !state.isFundamental(name.trim())) {
           state.addFundamentalExercise(name.trim(), muscleGroup);
         }
 
         hideModal();
         addForm.reset();
+        checkAndSyncFundamentalStatus('');
         if (techDetails) techDetails.classList.add('hidden');
       });
     }

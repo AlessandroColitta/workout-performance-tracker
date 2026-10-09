@@ -57,13 +57,13 @@ export class FundamentalsView {
       const historyCount = state.getFundamentalHistory(f.name).length;
 
       return `
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <button class="select-fund-btn py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${isSelected ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20 scale-105' : 'bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300'}" data-name="${f.name}">
+        <div class="inline-flex items-center gap-1">
+          <button class="select-fund-btn py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${isSelected ? 'bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 ring-2 ring-amber-400/40' : 'bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60'}" data-name="${f.name}">
             <span>⭐</span>
             <span>${f.name}</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] ${isSelected ? 'bg-zinc-950/20 text-zinc-950 font-extrabold' : 'bg-zinc-700 text-zinc-400'}">${historyCount}</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[10px] ${isSelected ? 'bg-zinc-950/20 text-zinc-950 font-black' : 'bg-zinc-700 text-zinc-400'}">${historyCount}</span>
           </button>
-          <button class="remove-fund-btn p-1.5 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-zinc-800 transition-colors" data-name="${f.name}" title="Rimuovi dai fondamentali">
+          <button class="remove-fund-btn p-1 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer" data-name="${f.name}" title="Rimuovi dai fondamentali">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -124,12 +124,52 @@ export class FundamentalsView {
             </button>
           </div>
 
-          <!-- Barra Selettore Esercizi Fondamentali dell'Utente -->
-          <div class="pt-3 border-t border-zinc-800/80">
-            <div class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2">I tuoi Fondamentali definiti:</div>
+          <!-- Barra Selettore Esercizi Fondamentali: Menu a Tendina (Mobile-Friendly) + Pillole A Capo Automatico -->
+          <div class="pt-3 border-t border-zinc-800/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <label for="select-fund-dropdown" class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                I tuoi Fondamentali definiti (${fundamentals.length}):
+              </label>
+              ${this.selectedFundamentalName ? `
+                <span class="text-[11px] text-amber-400 font-semibold flex items-center gap-1">
+                  <span>Attivo:</span>
+                  <strong class="text-zinc-200">${this.selectedFundamentalName}</strong>
+                </span>
+              ` : ''}
+            </div>
+
             ${fundamentals.length > 0 ? `
-              <div class="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
-                ${fundPillsHTML}
+              <!-- Menu a Tendina (Comodo e Immediato da Mobile) -->
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <select id="select-fund-dropdown" class="w-full bg-zinc-800 hover:bg-zinc-750 text-zinc-100 font-bold text-xs sm:text-sm py-2.5 px-3.5 pr-10 rounded-xl border border-zinc-700 focus:outline-none focus:border-amber-400 cursor-pointer appearance-none transition-all shadow-sm">
+                    ${fundamentals.map(f => {
+                      const isSelected = f.name.toLowerCase() === this.selectedFundamentalName?.toLowerCase();
+                      const historyCount = state.getFundamentalHistory(f.name).length;
+                      return `
+                        <option value="${f.name}" ${isSelected ? 'selected' : ''}>
+                          ⭐ ${f.name} (${f.muscleGroup || 'Benchmark'} • ${historyCount} sedute)
+                        </option>
+                      `;
+                    }).join('')}
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-zinc-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                  </div>
+                </div>
+
+                ${this.selectedFundamentalName ? `
+                  <button id="remove-current-fund-btn" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 border border-zinc-700 hover:border-rose-500/30 transition-all cursor-pointer flex-shrink-0" title="Rimuovi '${this.selectedFundamentalName}' dai fondamentali">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Pillole Rapide con A Capo Automatico (Tutte visibili senza scorrimento orizzontale) -->
+              <div class="pt-0.5">
+                <div class="flex flex-wrap gap-2">
+                  ${fundPillsHTML}
+                </div>
               </div>
             ` : `
               <div class="text-xs text-zinc-500 italic">Nessun esercizio fondamentale ancora registrato. Clicca su "+ Aggiungi Fondamentale" per iniziare.</div>
@@ -289,7 +329,29 @@ export class FundamentalsView {
   }
 
   static attachEventListeners(container, activeHistory) {
-    // Cambio fondamentale selezionato
+    // Cambio fondamentale selezionato tramite Menu a Tendina
+    const fundDropdown = container.querySelector('#select-fund-dropdown');
+    if (fundDropdown) {
+      fundDropdown.addEventListener('change', (e) => {
+        this.selectedFundamentalName = e.target.value;
+        this.render();
+      });
+    }
+
+    // Rimozione fondamentale selezionato tramite pulsante dropdown
+    const removeCurrentBtn = container.querySelector('#remove-current-fund-btn');
+    if (removeCurrentBtn && this.selectedFundamentalName) {
+      removeCurrentBtn.addEventListener('click', () => {
+        const name = this.selectedFundamentalName;
+        if (confirm(`Rimuovere "${name}" dalla lista degli esercizi fondamentali?`)) {
+          state.removeFundamentalExercise(name);
+          this.selectedFundamentalName = null;
+          this.render();
+        }
+      });
+    }
+
+    // Cambio fondamentale selezionato tramite Pillola Rapida
     container.querySelectorAll('.select-fund-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.selectedFundamentalName = btn.getAttribute('data-name');
